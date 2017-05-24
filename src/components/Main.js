@@ -41,6 +41,21 @@ function get30DegRandom(){
 
 
 var ImgFigure = React.createClass({
+	/*
+     * handle the click imgFigure event
+     */
+    handleClick: function (e) {
+	  
+      if (this.props.arrange.isCenter) {
+        this.props.inverse();
+      } else {
+        this.props.center();
+      }
+
+      e.stopPropagation();
+      e.preventDefault();
+    },
+
 	render:function(){
 		var styleObj = {};
 
@@ -55,12 +70,25 @@ var ImgFigure = React.createClass({
             styleObj[value] = 'rotate(' + this.props.arrange.rotate + 'deg)';
           }.bind(this));
         }
+		
+		if(this.props.arrange.isCenter){
+			styleObj.zIndex = 11;
+		}
+		
+		var imgFigureClassName = 'img-figure';
+		var imgFigureClassName = 'img-figure';
+		    imgFigureClassName += this.props.arrange.isInverse ? ' is-inverse' : '';
         
 		return(
-			<figure className="img-figure" style={styleObj}>
+			<figure className={imgFigureClassName} style={styleObj} onClick={this.handleClick}>
 				<img src={this.props.data.imageURL} alt={this.props.data.title} />
 				<figcaption>
 					<h2 className="img-title">{this.props.data.title}</h2>
+					<div className="img-back" onClick={this.handleClick}>
+                      <p>
+                        {this.props.data.desc}
+                      </p>
+                    </div>
 				</figcaption>
 			</figure>
 		)
@@ -88,8 +116,25 @@ var AppComponent = React.createClass( {
   },
   
   /*
-   *rearrange all the images
-   *@param centerIndex: point out which image is in center
+   * Inverse image
+   * @para index: current inverse image index
+   * @return {Function} 闭包函数，a real function which wait to be excuted
+   */
+  inverse: function (index) {
+    return function () {
+      var imgsArrangeArr = this.state.imgsArrangeArr;
+
+      imgsArrangeArr[index].isInverse = !imgsArrangeArr[index].isInverse;
+
+      this.setState({
+        imgsArrangeArr: imgsArrangeArr
+      });
+    }.bind(this);
+  },
+  
+  /*
+   * rearrange all the images
+   * @param centerIndex: point out which image is in center
    */
   rearrange: function(centerIndex){
     var imgsArrangeArr = this.state.imgsArrangeArr,
@@ -111,11 +156,14 @@ var AppComponent = React.createClass( {
 		
 		imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
 		
-		/* align the centerIndex image, no rotate */
-        imgsArrangeCenterArr[0].pos = centerPos;
+		//align the centerIndex image, no rotate */
+        imgsArrangeCenterArr[0] = {
+			pos:centerPos,
+			rotate: 0,
+			isCenter: true
+		};
 		
-		//Image in the center do not need rotate
-		imgsArrangeCenterArr[0].rotate = 0;
+		
 		
 		/* get the image status in the top section */
         topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
@@ -128,7 +176,8 @@ var AppComponent = React.createClass( {
                   top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
                   left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
               },
-			  rotate: get30DegRandom()
+			  rotate: get30DegRandom(),
+			  isCenter: false
             };
         });
 		
@@ -148,7 +197,8 @@ var AppComponent = React.createClass( {
                 top: getRangeRandom(hPosRangeY[0],hPosRangeY[1]),
                 left: getRangeRandom(hPosRangeLORX[0],hPosRangeLORX[1])
 			  },
-			  rotate: get30DegRandom()
+			  rotate: get30DegRandom(),
+			  isCenter: false
             };
 			
         }
@@ -164,6 +214,33 @@ var AppComponent = React.createClass( {
         });
   },
   
+  /*
+   * Center the image by using arrange function
+   * @param index, the index of the image which is waiting to be centred
+   * @returns {Function}
+   */
+  center: function (index) {
+    return function () {
+      this.rearrange(index);
+    }.bind(this);
+  },
+
+  getInitialState: function () {
+    return {
+        imgsArrangeArr: [
+            /*{
+                pos: {
+                    left: '0',
+                    top: '0'
+                },
+                rotate: 0,    // 旋转角度
+                isInverse: false,    // 图片正反面
+                isCenter: false,    // 图片是否居中
+            }*/
+        ]
+    };
+  },
+  
   getInitialState:function(){
 	return{
 	  imgsArrangeArr:[
@@ -172,7 +249,10 @@ var AppComponent = React.createClass( {
 			pos:{
 				left:'0',
 				top:'0'
-			}
+			},
+			rotate: 0,
+			isInverse: false,
+			isCenter: false
 			*/
 		}
 	  ]
@@ -232,11 +312,13 @@ var AppComponent = React.createClass( {
 					top: 0,
 					left: 0
 				},
-				rotate:0
+				rotate:0,
+				isInverse: false,
+				isCenter: false
             };
         }
      
-		imgFigures.push(<ImgFigure key={index} data={value} ref={'imgFigure'+index} arrange={this.state.imgsArrangeArr[index]} />);
+		imgFigures.push(<ImgFigure key={index} data={value} ref={'imgFigure'+index} arrange={this.state.imgsArrangeArr[index]} inverse={this.inverse(index)} center={this.center(index)}/>);
 	}.bind(this));
 	
     return (
