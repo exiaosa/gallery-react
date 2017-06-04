@@ -96,6 +96,39 @@ var ImgFigure = React.createClass({
 	}
 });
 
+// Controller Unit
+var ControllerUnit = React.createClass({
+    handleClick: function (e) {
+
+        //If the clicked the selected dot,then inverse image;Otherwise, align center the image
+        if (this.props.arrange.isCenter) {
+            this.props.inverse();
+        } else {
+            this.props.center();
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+    },
+    render: function () {
+        var controlelrUnitClassName = "controller-unit";
+
+        // If the clicked dot refers to the center image, the dot show center status
+        if (this.props.arrange.isCenter) {
+            controlelrUnitClassName += " is-center";
+
+            // If the referred image is inverted as well, the dot shows inverted status as well
+            if (this.props.arrange.isInverse) {
+                controlelrUnitClassName += " is-inverse";
+            }
+        }
+
+        return (
+            <span className={controlelrUnitClassName} onClick={this.handleClick}></span>
+        );
+    }
+});
+
 var AppComponent = React.createClass( {
   Constant:{
 	centerPos:{
@@ -319,6 +352,8 @@ var AppComponent = React.createClass( {
         }
      
 		imgFigures.push(<ImgFigure key={index} data={value} ref={'imgFigure'+index} arrange={this.state.imgsArrangeArr[index]} inverse={this.inverse(index)} center={this.center(index)}/>);
+		
+		controllerUnits.push(<ControllerUnit key={index} arrange={this.state.imgsArrangeArr[index]} inverse={this.inverse(index)} center={this.center(index)}/>);
 	}.bind(this));
 	
     return (

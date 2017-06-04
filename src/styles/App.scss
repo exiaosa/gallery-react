@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "icons-turn-arrow";
+    src: url("../fonts/icons/turn-arrow.eot") format("embedded-opentype"), url("../fonts/icons/turn-arrow.woff") format("woff"), url("../fonts/icons/turn-arrow.ttf") format("truetype"), url("../fonts/icons/turn-arrow.svg") format("svg");
+}
+
 /* Base Application Styles */
 html,body {
   width:100%;
@@ -100,7 +105,7 @@ html,body {
 .controller-nav {
     position: absolute;
     left: 0;
-    bottom: 30px;
+    bottom: 60px;
     z-index: 101;
 
     width: 100%;
