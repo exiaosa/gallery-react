@@ -118,7 +118,7 @@ var AppComponent = React.createClass( {
   /*
    * Inverse image
    * @para index: current inverse image index
-   * @return {Function} 闭包函数，a real function which wait to be excuted
+   * @return {Function} Closure,a real function which wait to be executed
    */
   inverse: function (index) {
     return function () {
